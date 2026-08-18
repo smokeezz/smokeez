@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMOKEEZ — Предзаказ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0712;
+    --panel:#150f1f;
+    --panel2:#1d1530;
+    --line:#2b2240;
+    --line-soft:#221a35;
+    --text:#f4eefb;
+    --muted:#9c8fb0;
+    --muted-dim:#6f6485;
+    --magenta:#e34fef;
+    --violet:#8b5cf6;
+    --ok:#34d399;
+    --no:#fb7185;
+    --gold:#fbbf24;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Manrope',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Oswald',sans-serif;
+    font-style:italic;
+    text-transform:uppercase;
+    letter-spacing:0.01em;
+    margin:0;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:inherit;}
+  ::selection{background:var(--magenta);color:#100815;}
+
+  /* ---------- background atmosphere ---------- */
+  .smoke-field{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    overflow:hidden;
+    background:
+      radial-gradient(60% 50% at 15% 8%, rgba(139,92,246,0.28), transparent 60%),
+      radial-gradient(50% 45% at 90% 15%, rgba(227,79,239,0.20), transparent 60%),
+      radial-gradient(70% 60% at 50% 100%, rgba(139,92,246,0.14), transparent 60%),
+      var(--bg);
+  }
+  .smoke-field .blob{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(70px);
+    opacity:0.35;
+    animation: drift 26s ease-in-out infinite alternate;
+  }
+  .smoke-field .b1{width:36vw;height:36vw;background:var(--violet);top:-8%;left:-6%;}
+  .smoke-field .b2{width:30vw;height:30vw;background:var(--magenta);top:20%;right:-8%;animation-delay:-8s;}
+  .smoke-field .b3{width:26vw;height:26vw;background:#5b21b6;bottom:-10%;left:30%;animation-delay:-14s;}
+  @keyframes drift{
+    from{transform:translate(0,0) scale(1);}
+    to{transform:translate(3%, 4%) scale(1.08);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .smoke-field .blob{animation:none;}
+    html{scroll-behavior:auto;}
+  }
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky;
+    top:0;
+    z-index:40;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:14px 28px;
+    background:rgba(11,7,18,0.72);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand img{height:38px;display:block;}
+  .header-links{display:flex;align-items:center;gap:10px;}
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 18px;
+    border-radius:999px;
+    font-weight:700;
+    font-size:0.85rem;
+    font-family:inherit;
+    text-decoration:none;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+    white-space:nowrap;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{
+    background:linear-gradient(135deg, var(--magenta), var(--violet));
+    color:#fff;
+    box-shadow:0 8px 24px -8px rgba(227,79,239,0.55);
+  }
+  .btn-primary:hover{box-shadow:0 10px 30px -6px rgba(227,79,239,0.75);}
+  .btn-ghost{
+    background:rgba(255,255,255,0.03);
+    border-color:var(--line);
+    color:var(--text);
+  }
+  .btn-ghost:hover{background:rgba(255,255,255,0.07);border-color:var(--muted-dim);}
+  .btn-sm{padding:7px 13px;font-size:0.78rem;}
+  .header-links .btn span.full{display:inline;}
+  @media (max-width:680px){
+    header{padding:12px 16px;}
+    .header-links .btn span.full{display:none;}
+    .header-links .btn{padding:10px 12px;}
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    padding:96px 28px 64px;
+    text-align:center;
+    max-width:920px;
+    margin:0 auto;
+  }
+  .hero .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.75rem;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--magenta);
+    margin-bottom:18px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .hero .eyebrow::before{
+    content:'';
+    width:7px;height:7px;border-radius:50%;
+    background:var(--ok);
+    box-shadow:0 0 0 4px rgba(52,211,153,0.18);
+  }
+  .hero h1{
+    font-size:clamp(2.6rem, 7vw, 5rem);
+    line-height:0.98;
+    font-weight:700;
+    background:linear-gradient(100deg, #fff 30%, var(--magenta) 78%, var(--violet) 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .hero p.sub{
+    margin:22px auto 0;
+    max-width:560px;
+    color:var(--muted);
+    font-size:1.05rem;
+    line-height:1.6;
+  }
+  .hero h1 .emoji{
+    -webkit-background-clip:initial;
+    background-clip:initial;
+    -webkit-text-fill-color:initial;
+    color:initial;
+  }
+  .hero .cta-row{
+    margin-top:34px;
+    display:flex;
+    justify-content:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .hero .cta-row .btn{padding:14px 26px;font-size:0.92rem;}
+  .btn-catalog{
+    background:var(--panel2);
+    border:1px solid var(--magenta);
+    color:var(--text);
+    box-shadow:0 0 0 0 rgba(227,79,239,0.4);
+    animation:pulseGlow 2.4s ease-in-out infinite;
+  }
+  .btn-catalog:hover{background:rgba(227,79,239,0.12);}
+  @keyframes pulseGlow{
+    0%{box-shadow:0 0 0 0 rgba(227,79,239,0.35);}
+    70%{box-shadow:0 0 0 10px rgba(227,79,239,0);}
+    100%{box-shadow:0 0 0 0 rgba(227,79,239,0);}
+  }
+  .stat-strip{
+    margin-top:52px;
+    display:flex;
+    justify-content:center;
+    gap:0;
+    flex-wrap:wrap;
+    border:1px solid var(--line-soft);
+    border-radius:16px;
+    overflow:hidden;
+    background:rgba(255,255,255,0.02);
+  }
+  .stat{
+    padding:18px 30px;
+    text-align:left;
+    border-right:1px solid var(--line-soft);
+    min-width:150px;
+  }
+  .stat:last-child{border-right:none;}
+  .stat .num{font-family:'Oswald',sans-serif;font-style:italic;font-size:1.8rem;color:var(--text);}
+  .stat .lbl{font-size:0.72rem;color:var(--muted-dim);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px;}
+
+  /* ---------- filter bar ---------- */
+  .filter-bar{
+    position:sticky;
+    top:63px;
+    z-index:30;
+    background:rgba(11,7,18,0.88);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line-soft);
+    padding:14px 28px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .search-wrap{
+    position:relative;
+    flex:1 1 220px;
+    max-width:340px;
+  }
+  .search-wrap input{
+    width:100%;
+    padding:10px 14px 10px 36px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:var(--panel);
+    color:var(--text);
+    font-family:'Manrope',sans-serif;
+    font-size:0.88rem;
+    outline:none;
+  }
+  .search-wrap input:focus{border-color:var(--magenta);}
+  .search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:0.5;width:14px;height:14px;}
+  .chip-filters{display:flex;gap:8px;flex-wrap:wrap;}
+  .cat-chip{
+    padding:8px 16px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:var(--panel);
+    color:var(--muted);
+    font-size:0.8rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .cat-chip:hover{border-color:var(--muted-dim);}
+  .cat-chip.active{
+    background:linear-gradient(135deg, var(--magenta), var(--violet));
+    color:#fff;
+    border-color:transparent;
+  }
+  .filter-toggle-btn{
+    flex:0 0 auto;
+    width:34px;height:34px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    background:var(--panel);
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .filter-toggle-btn:hover{border-color:var(--magenta);color:var(--text);}
+  .filter-toggle-btn svg{width:16px;height:16px;transition:transform .2s ease;}
+  .filter-toggle-btn.open svg{transform:rotate(180deg);}
+  .filter-extra{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+    flex:1 1 auto;
+    overflow:hidden;
+    max-height:200px;
+    opacity:1;
+    transition:max-height .2s ease, opacity .15s ease, margin .2s ease;
+  }
+  .filter-extra.collapsed{
+    max-height:0;
+    opacity:0;
+    pointer-events:none;
+    gap:0;
+  }
+  .stock-toggle{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-left:auto;
+    font-size:0.8rem;
+    color:var(--muted);
+    cursor:pointer;
+    user-select:none;
+  }
+  .stock-toggle .box{
+    width:34px;height:20px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);position:relative;transition:background .15s;
+  }
+  .stock-toggle .box::after{
+    content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--muted-dim);transition:all .15s;
+  }
+  .stock-toggle input{display:none;}
+  .stock-toggle input:checked + .box{background:rgba(52,211,153,0.25);border-color:var(--ok);}
+  .stock-toggle input:checked + .box::after{left:16px;background:var(--ok);}
+
+  /* ---------- catalog ---------- */
+  main{max-width:1180px;margin:0 auto;padding:40px 28px 140px;}
+  .category-section{margin-bottom:56px;}
+  .category-section > h2{
+    font-size:1.7rem;
+    color:var(--text);
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:22px;
+    padding-bottom:12px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .category-section > h2 .count{
+    font-family:'JetBrains Mono',monospace;
+    font-style:normal;
+    font-size:0.8rem;
+    color:var(--muted-dim);
+    text-transform:none;
+    letter-spacing:0;
+  }
+  .lines-grid{display:flex;flex-direction:column;gap:16px;}
+
+  .line-card{
+    background:var(--panel);
+    border:1px solid var(--line-soft);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+  .line-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:16px 20px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .line-head:hover{background:rgba(255,255,255,0.02);}
+  .line-title-wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0;}
+  .line-title{font-family:'Oswald',sans-serif;font-style:italic;font-size:1.12rem;color:var(--text);}
+  .badge{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.68rem;
+    padding:3px 9px;
+    border-radius:999px;
+    letter-spacing:0.02em;
+    white-space:nowrap;
+  }
+  .badge-promo{background:rgba(251,191,36,0.14);color:var(--gold);border:1px solid rgba(251,191,36,0.35);}
+  .badge-note{background:rgba(139,92,246,0.14);color:#c4b5fd;border:1px solid rgba(139,92,246,0.3);}
+  .line-meta{display:flex;align-items:center;gap:16px;flex-shrink:0;}
+  .avail-count{font-size:0.76rem;color:var(--muted-dim);font-family:'JetBrains Mono',monospace;}
+  .chevron{width:11px;height:11px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s;}
+  .line-card.open .chevron{transform:rotate(-135deg);}
+
+  .flavor-panel{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .3s ease;
+  }
+  .line-card.open .flavor-panel{max-height:2000px;}
+  .flavor-grid{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    padding:4px 20px 20px;
+  }
+  .flavor-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:7px 12px 7px 9px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:var(--panel2);
+    font-size:0.8rem;
+    cursor:pointer;
+    transition:all .12s ease;
+  }
+  .flavor-chip .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .flavor-chip.ok:hover{border-color:var(--magenta);transform:translateY(-1px);}
+  .flavor-chip.ok.selected{
+    background:linear-gradient(135deg, rgba(227,79,239,0.22), rgba(139,92,246,0.22));
+    border-color:var(--magenta);
+  }
+  .flavor-chip.out{
+    opacity:0.45;
+    cursor:not-allowed;
+    text-decoration:line-through;
+    text-decoration-color:var(--muted-dim);
+  }
+
+  /* ---------- cart ---------- */
+  .cart-fab{
+    position:fixed;
+    right:22px;
+    bottom:22px;
+    z-index:50;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 20px;
+    border-radius:999px;
+    background:linear-gradient(135deg, var(--magenta), var(--violet));
+    color:#fff;
+    font-weight:700;
+    font-size:0.88rem;
+    border:none;
+    cursor:pointer;
+    box-shadow:0 12px 30px -8px rgba(227,79,239,0.6);
+    transition:transform .15s ease;
+  }
+  .cart-fab:hover{transform:translateY(-2px);}
+  .cart-fab .badge-count{
+    background:rgba(0,0,0,0.28);
+    border-radius:999px;
+    min-width:22px;
+    height:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.75rem;
+  }
+  .cart-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(5,3,9,0.6);
+    backdrop-filter:blur(3px);
+    z-index:60;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease;
+  }
+  .cart-overlay.show{opacity:1;pointer-events:auto;}
+  .cart-panel{
+    position:fixed;
+    right:0;
+    top:0;
+    bottom:0;
+    width:min(400px, 100%);
+    background:var(--panel);
+    border-left:1px solid var(--line-soft);
+    z-index:61;
+    transform:translateX(100%);
+    transition:transform .25s ease;
+    display:flex;
+    flex-direction:column;
+  }
+  .cart-panel.show{transform:translateX(0);}
+  .cart-head{
+    padding:20px;
+    border-bottom:1px solid var(--line-soft);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .cart-head h3{font-size:1.2rem;}
+  .cart-close{background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;line-height:1;}
+  .cart-list{flex:1;overflow-y:auto;padding:12px 20px;}
+  .cart-empty{color:var(--muted-dim);font-size:0.88rem;text-align:center;margin-top:40px;line-height:1.6;}
+  .cart-group{margin-bottom:18px;}
+  .cart-group .g-title{font-family:'JetBrains Mono',monospace;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted-dim);margin-bottom:8px;}
+  .cart-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:9px 0;
+    border-bottom:1px solid var(--line-soft);
+    font-size:0.86rem;
+    gap:10px;
+  }
+  .cart-item .ci-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .cart-item .ci-controls{display:flex;align-items:center;gap:10px;flex:0 0 auto;}
+  .stepper.sm{display:flex;align-items:center;gap:6px;}
+  .stepper.sm button{
+    width:22px;height:22px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    background:var(--panel2);
+    color:var(--text);
+    font-size:0.85rem;
+    line-height:1;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:border-color .15s ease;
+  }
+  .stepper.sm button:hover{border-color:var(--magenta);}
+  .stepper.sm .st-val{
+    min-width:16px;
+    text-align:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.8rem;
+  }
+  .cart-item .rm{background:none;border:none;color:var(--no);cursor:pointer;font-size:1rem;padding:0 4px;}
+  .cart-foot{padding:18px 20px 22px;border-top:1px solid var(--line-soft);display:flex;flex-direction:column;gap:10px;}
+  .cart-foot .btn{justify-content:center;width:100%;}
+  .cart-hint{font-size:0.74rem;color:var(--muted-dim);text-align:center;line-height:1.5;}
+
+  /* ---------- footer ---------- */
+  footer{
+    border-top:1px solid var(--line-soft);
+    padding:36px 28px 30px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+    text-align:center;
+  }
+  footer img{height:20px;opacity:0.85;}
+  footer .foot-links{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;font-size:0.85rem;}
+  footer .foot-links a{color:var(--muted);text-decoration:none;}
+  footer .foot-links a:hover{color:var(--magenta);}
+  footer .disclaimer{max-width:560px;color:var(--muted-dim);font-size:0.74rem;line-height:1.6;}
+
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:26px;
+    transform:translate(-50%, 20px);
+    background:var(--panel2);
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:11px 20px;
+    border-radius:999px;
+    font-size:0.82rem;
+    z-index:80;
+    opacity:0;
+    transition:all .25s ease;
+    pointer-events:none;
+  }
+  .toast.show{opacity:1;transform:translate(-50%, 0);}
+</style>
+</head>
+<body>
+
+<div class="smoke-field"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+<header>
+  <div class="brand"><img src="smokeez-logo.png" alt="SMOKEEZ"></div>
+  <div class="header-links">
+    <a class="btn btn-ghost btn-sm" href="https://t.me/+EBQk_uPw1ZdhNjBi" target="_blank" rel="noopener">
+      <span>📣</span><span class="full">Канал</span>
+    </a>
+    <a class="btn btn-primary btn-sm" href="https://t.me/znllxs" target="_blank" rel="noopener">
+      <span>💬</span><span class="full">Заказать</span>
+    </a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Наличие обновлено · предзаказ открыт</div>
+  <h1>Лучшие в Германии<span class="emoji">🇩🇪</span><br>и Словакии<span class="emoji">🇸🇰</span></h1>
+  <p class="sub">Одноразки, POD-системы, жижи и снюс — весь актуальный ассортимент SMOKEEZ. Выбирай вкусы, собирай список и отправляй заказ в один клик.</p>
+  <div class="cta-row">
+    <button type="button" class="btn btn-primary btn-catalog" id="scrollToCatalog">🔍 Смотреть ассортимент</button>
+    <a class="btn btn-primary" href="https://t.me/znllxs" target="_blank" rel="noopener">Написать в личку → @znllxs</a>
+    <a class="btn btn-ghost" href="https://t.me/+EBQk_uPw1ZdhNjBi" target="_blank" rel="noopener">Подписаться на канал</a>
+  </div>
+  <div class="stat-strip" id="statStrip">
+    <div class="stat"><div class="num" id="statLines">—</div><div class="lbl">товарных линеек</div></div>
+    <div class="stat"><div class="num" id="statFlavors">—</div><div class="lbl">вкусов в наличии</div></div>
+    <div class="stat"><div class="num">18+</div><div class="lbl">только для взрослых</div></div>
+  </div>
+</section>
+
+<div class="filter-bar" id="filterBar">
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="searchInput" placeholder="Найти вкус или устройство…">
+  </div>
+  <button class="filter-toggle-btn open" id="filterToggleBtn" type="button" aria-label="Показать/скрыть фильтры">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+  </button>
+  <div class="filter-extra" id="filterExtra">
+    <div class="chip-filters" id="catFilters"></div>
+    <label class="stock-toggle">
+      <input type="checkbox" id="stockOnly">
+      <span class="box"></span>
+      Только в наличии
+    </label>
+  </div>
+</div>
+
+<main id="catalog"></main>
+
+<button class="cart-fab" id="cartFab">
+  🧾 Заказ <span class="badge-count" id="cartCount">0</span>
+</button>
+
+<div class="cart-overlay" id="cartOverlay"></div>
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-head">
+    <h3 class="display">Мой список</h3>
+    <button class="cart-close" id="cartClose">✕</button>
+  </div>
+  <div class="cart-list" id="cartList"></div>
+  <div class="cart-foot">
+    <button class="btn btn-ghost" id="copyBtn">Скопировать список</button>
+    <a class="btn btn-primary" href="https://t.me/znllxs" target="_blank" rel="noopener" id="sendBtn">Отправить в Telegram</a>
+    <div class="cart-hint">Количество каждого вкуса можно менять кнопками − и + . Список скопируется в буфер обмена — просто вставь его в чат с @znllxs.</div>
+  </div>
+</div>
+
+<footer>
+  <img src="smokeez-logo.png" alt="SMOKEEZ">
+  <div class="foot-links">
+    <a href="https://t.me/+EBQk_uPw1ZdhNjBi" target="_blank" rel="noopener">Telegram-канал</a>
+    <a href="https://t.me/znllxs" target="_blank" rel="noopener">Заказ в личку</a>
+  </div>
+  <div class="disclaimer">Товар предназначен только для лиц старше 18 лет. Продукция содержит никотин — вещество, вызывающее зависимость. Цены и позиции с пометкой «Цена по запросу» уточняются в личных сообщениях. Наличие обновляется вручную и может отличаться на момент заказа.</div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ======================= DATA ======================= */
+const CATEGORIES = [
+  {key:'disposable', label:'Одноразки'},
+  {key:'pod', label:'POD-системы'},
+  {key:'liquid', label:'Жидкости'},
+  {key:'snus', label:'Снюс'},
+];
+
+function L(name, category, items, extra){
+  return Object.assign({name, category, items}, extra||{});
+}
+function F(list, val){ return list.map(n => ({n, ok: val})); }
+function P(pairs){ return pairs.map(([n,ok]) => ({n, ok})); }
+
+const DATA = [
+  // ---------------- DISPOSABLES ----------------
+  L('SKE Crystal Bar 20K','disposable', P([['Apple Kiwi',true],['Banana Cake',true],['Blueberry Raspberry',true],['Cherry Ice',true],['Cola Ice',true],['Fresh Menthol Mojito',false],['Grape Cherry',true],['Grape Mint',true],['Lemon Lime',true],['Mixed Berries',true],['Orbit',true],['Pink Lemonade',true],['Red Bull',true],['Sour Watermelon Gummy',true],['Watermelon Bubblegum',true]]), {promo:'Акция 6,5€'}),
+  L('Elfbar Ice King 30000','disposable', P([['Banana Cake',true],['Blackberry Cranberry',false],['Blue Razz Ice',false],['Cherry Pomegranate Cranberry',false],['ELF BULL',false],['Grape Ice',false],['Kiwi Passion Fruit Guava',true],['Lime Cola',false],['Miami Mint',false],['Peach Ice',false],['Pink Lemonade',false],['Ribena Lychee',false],['Strawberry Kiwi Ice',true],['Strawberry Watermelon',true],['Watermelon Ice',true]]), {note:'Цена по запросу'}),
+  L('Elfbar Nic King','disposable', P([['Chilly River',true],['Icy Blue Rose',false],['Key Lime',true],['Pear Soda',true],['Pomegranate Burst',false]]), {promo:'Акция 6,5€'}),
+  L('Elfbar Sweet King','disposable', F(['Pear Soda','Pine Needle Mint','Jasmine Raspberry'], true), {promo:'Акция 6,5€'}),
+  L('Elfbar Moon Night 40000','disposable', P([['Blue Razz Ice',false],['Cherry Watermelon',false],['Grape Ice',false],['Grape Raspberry',false],['Kiwi Passion Fruit Guava',true],['Lemon Lime',false],['Lime Cola',true],['Mango Peach Watermelon',false],['Miami Mint',false],['Peach Ice',true],['Pomegranate Burst',true],['Watermelon Ice',true]]), {note:'Цена по запросу'}),
+  L('VOZOL Vista 40000','disposable', P([['Blue Razz Ice',true],['Blueberry Ice',false],['Cherry Cola',false],['Double Apple',true],['Frozen Strawberry Kiwi',true],['Grape Ice',false],['Juicy Peach',true],['Love 777',true],['Lychee Orange Passion Fruit',true],['Mango Passion Fruit',false],['Melon Gum',false],['Miami Mint',false],['Passion Fruit Raspberry Tangerine',false],['Peach Berry',true],['Strawberry Banana',false],['Strawberry Kiwi',false],['Strawberry Watermelon',false],['Watermelon Bubblegum',false],['Watermelon Ice',false]])),
+  L('Elfbar GH33000 Pro','disposable', P([['Apple Kiwi Ice',false],['Banana Milk',false],['Blue Razz Ice',false],['Cherry Pomegranate Pineapple',false],['Granny Cherry',false],['Grape Ice',false],['Grapefruit Passion Guava',true],['Juice Peach',false],['Kiwi Pineapple Peach',false],['Lemon Lime',false],['Mountain Mint',false],['Pear Soda',false],['Pine Needles',false],['Pomegranate Burst',false],['Raspberry Grapefruit Lemon',false],['Sour Strawberry Dragonfruit',false],['Strawberry Ice',false],['Strawberry Kiwi',false],['Watermelon Ice',false]])),
+  L('VOZOL Rave 40000','disposable', P([['Blue Razz Ice',false],['Blueberry Ice',false],['Blueberry Watermelon',false],['Cherry Cola',true],['Cherry Strawberry',false],['Cool Mint',true],['Double Apple',true],['Dragon Fruit Banana',true],['Grape Ice',false],['Kiwi Passion Fruit',false],['Love 777',true],['Mango Peach',true],['Peach Ice',false],['Peach Raspberry Lemonade',false],['Strawberry Ice',false],['Strawberry Kiwi',false],['Strawberry Mango',true],['Strawberry Watermelon',false],['Strawmelon Peach',false],['Watermelon Bubblegum',false],['Watermelon Ice',false],['Watermelon Razz Rancher',false]])),
+  L('VOZOL Gear Ice&Sweet 50000','disposable', P([['Cherry Cola',false],['Love 777',true],['Two Apples',false]])),
+  L('Elfbar BC45000','disposable', F(['Blue Razz Ice','Blackcurrant Grape','Blackberry Lemonade','Cherry Peach Soda','Double Mint','Grapefruit Green Tea','Lemon Lime','Kiwi Pineapple Peach','Red Raspberry Strawberry','Pomegranate Raspberry Lime','Pomegranate Burst','Pear Soda','Strawberry Grapefruit','Sour Apple Kiwi','Watermelon Ice'], true)),
+  L('Elfbar Lush King 40000','disposable', P([['Black Currant Pineapple',true],['Black Grape Ice',true],['Watermelon Ice',true],['Blue Razz Ice',true],['Cactus Lime',true],['Cherry Burst',true],['Milky Oolong',true],['Mountain Mint',true],['Pomegranate Burst',true],['Sour Apple Ice',false],['Sour Pineapple Ice',true],['Sour Strawberry Dragonfruit',true],['Starfruit Grape',true]])),
+  L('Elfbar 2000','disposable', F(['Banana Milk','Grape Energy','Pineapple Ice'], true), {promo:'Акция 4€'}),
+  L('Elfbar Lux2000','disposable', F(['Kiwi Berry'], true)),
+  L('Elfbar BC Pro 40000','disposable', P([['Aurora Berries',true],['Black Mint',false],['Blackberry Grape',true],['Blue Razz Ice',true],['Golden Berry',true],['Grape Twist',true],['Pineapple POM',true],['Pink Lemonade',true],['Raspberry Mallow',true],['Sour Apple Ice',true],['Sour F*cking Fab',true],['Strawberry Blend',true],['Strawberry Kiwi',true],['Strawberry Raspberry Frost',true],['Toasted Pineapple',true],['Triple Berry',true],['Tropical Baja',true],['Watermelon Ice',true],['Watermelon Peach Frost',false],['Winter Mint',true]]), {promo:'Акция 6,5€'}),
+  L('VOZOL Star Click 50000','disposable', P([['Blackberry Pomegranate Cherry',true],['Blue Razz Ice',false],['Blueberry Energy',false],['Cappuccino',true],['Cherry Cola',true],['Date Shake Molasses',true],['Dragonfruit Banana Cherry',false],['Grape Ice',true],['Love 777',true],['Melon Bubblegum',true],['Mixed Berry',false],['Orange Molasses',true],['Peach Ice',true],['Peach Mango Watermelon',false],['Pineapple Ice',true],['Raspberry Watermelon',true],['SpearMint',true],['Strawberry Banana',false],['Strawberry Gum',true],['Strawberry Kiwi',true],['Strawberry Lemon',false],['Strawberry Raspberry Cherry',true],['Strawberry Watermelon',true],['Tiger Blood',true],['Tropical Fruit Storm',true],['Watermelon Gum',true],['Watermelon Ice',false],['Watermelon Melon',true]])),
+  L('VOZOL Star 40000','disposable', F(['Blueberry Watermelon','Cherimoya Grapefruit Berries','Cherry Cola','Grape Ice','Sour Apple Ice','Strawberry Ice','Strawberry Watermelon','Watermelon Bubble Gum','Watermelon Ice'], true)),
+  L('Elfbar Raya D3','disposable', P([['Alpine Mint',false],['Apple Peach',true],['Blackberry Cranberry',true],['Blackberry Pomegranate Cherry',false],['Blue Razz Ice',true],['Blueberry Ice',false],['Blueberry Raspberry',false],['Double Apple',false],['Double Mango',false],['Grape Cherry',false],['Grape Ice',false],['Grape Mint',false],['Kiwi Passion Fruit Guava',false],['Kiwi Pineapple Ice',true],['Lemon Lime Ice',false],['Mango Peach Watermelon',false],['Peach Berry',false],['Peach Ice',true],['Strawberry Grape',false],['Strawberry Ice',false],['Strawberry Raspberry Cherry',false],['Strawberry Watermelon',false],['Watermelon Bubble Gum',true],['Watermelon Ice',false],['Watermelon Lemon',false]]), {note:'Цена по запросу'}),
+  L('Elfbar Duke 30000 5%','disposable', P([['Blue Razz Ice',true],['Cherry Burst',false],['Cherry Lemon',false],['Cranberry Pineapple',false],['Grape Pomegranate',false],['Lemon Lime',true],['Mountain Mint',false],['Pineapple White Peach',false],['Nordic Berry',false],['Sicilia Orange',false],['Sour Apple Ice',true],['Sour Blackberry Ice',false],['Sour Grape Ice',false],['Strawberry Kiwi',false],['Watermelon Ice',false]])),
+  L('WASPE 100K 4 in 1','disposable', F(['Blueberry Ice & Black Knight & Strawberry Ice & Strawberry Watermelon','Blueberry Raspberry & Blueberry Lemonade & Mixed Berries & Grape Honey Ice','Cherry Cola Ice & Strawberry Cherry Ice & Strawberry Cola Ice & Strawberry Watermelon Bubblegum','Grape Ice & Strawberry Kiwi & Strawberry Raspberry Cherry & Black Knight','Juicy Peach Ice & Tropical Fruit & Fruit Blast & Peach Berry','Mixed Berries & Double Apple Ice & Blueberry Raspberry & Blueberry Honey','Red Bull Ice & Banana Ice & Pineapple Coconut Ice & Triple Mango Ice','Strawberry Banana & Strawberry Red Bull & Strawberry Mango & Pink Lemonade','Strawberry Raspberry Cherry & Crazy Cherry Ice & Blue Cherry Ice & Cola Ice','Strawberry Red Bull & Strawberry Watermelon Bubblegum & Red Bull Ice & Cherry Cola Ice','Strawberry Watermelon & MR. Blue & Grape Ice & Rainbow Candy','Watermelon Ice & Strawberry Kiwi & Raspberry Watermelon & Lemon Lime'], true)),
+
+  // ---------------- POD SYSTEMS & CARTRIDGES ----------------
+  L('Картридж SKE Crystal Bar 20K','pod', P([['Apple Kiwi',false],['Banana Cake',true],['Blueberry Raspberry',false],['Cherry Ice',true],['Cola Ice',true],['Fresh Menthol Mojito',false],['Grape Cherry',true],['Grape Mint',true],['Lemon Lime',false],['Mixed Berries',false],['Orbit',true],['Pink Lemonade',false],['Red Bull',true],['Sour Watermelon Gummy',true],['Watermelon Bubblegum',true]]), {note:'Цена по запросу'}),
+  L('ELFX Pod','pod', F(['Blue','Grey','Purple','Silver','Pink'], false), {note:'Цена по запросу'}),
+  L('Картриджи Elfbar ELFX / ELFX Pro','pod', P([['0.6 Ω (3шт)',false],['0.8 Ω (3шт)',false]])),
+  L('Vaporesso Xros 4 Mini','pod', P([['Black',true],['Space Grey',true],['Ice Purple',false],['Ice Green',false],['Ice Blue',false],['Champagne Gold',false],['Camo Yellow',true],['Camo Red',false],['Camo Silver',true],['Ice Pink',false]]), {note:'Цена по запросу'}),
+  L('Vaporesso Xros 5','pod', P([['Blue Silk',true],['Carbon Stripe',false],['Coral Red',true],['Cosmic Black',false],['Grey Silk',true],['Jade Green',true],['Lavender Purple',false],['Opal Pink',true],['Opal White',true],['Violet Silk',false]]), {note:'Цена по запросу'}),
+  L('Картриджи Xros','pod', P([['Corex 2.0 XROS 3мл 0.4 Ω (4шт)',true],['Corex 3.0 XROS 3мл 0.6 Ω (4шт)',true],['Corex 3.0 XROS 3мл 0.8 Ω (4шт)',false]])),
+  L('ELFX Pro','pod', P([['Black',false]]), {note:'Цена по запросу'}),
+  L('Vaporesso Xros 5 Mini','pod', F(['Black','Carbon Black','Flowing Blue','Flowing Green','Flowing Pink','Pastel Crystal','Purple','Rose Red','Sky Blue','Titanium Silver'], true)),
+  L('Vaporesso Vibe SE','pod', F(['Black','White','Mocha Coffee','Blue','Strawberry Red','Grape Purple','Frozen Mint','Grapefruit Soda','Ice Cream Pink','Ice Blueberry'], true), {promo:'Акция 6€'}),
+  L('Картридж Vaporesso Vibe SE','pod', P([['4.5мл 0.8 Ω (3шт)',true],['4.5мл 1.0 Ω (3шт)',true]]), {note:'Картриджи по 2€'}),
+  L('Vaporesso Xros Pro 2','pod', F(['Dawn Purple','Gem Green','Glittering Black','Glittering Gold','Glittering Silver','Moonlit Pink','Storm Blue'], true)),
+  L('OXVA Xlim GO 2','pod', P([['Black Carbon',true],['Black Shadow',false],['Blue Ripple',true],['Brown Shadow',true],['Green Ripple',true],['Metal Blue',true],['Metal Silver',true],['Pink Ripple',false]])),
+  L('Картриджи OXVA Xlim Top Fill','pod', P([['0.4 Ом, 3мл (3шт)',false],['0.6 Ом, 3мл (3шт)',true],['0.8 Ом, 3мл (3шт)',true],['1.2 Ом, 3мл (3шт)',true]])),
+
+  // ---------------- LIQUIDS ----------------
+  L('Yami 30ml 50mg','liquid', F(['Apple Peach','Blue Razz Lemonade','Blueberry Sour Raspberry','Cherry Cola','Cherry Ice','Coconut Candy','Dragon Fruit Banana Cherry','Energy Ice','Grape Energy','Jasmine Raspberry','Lemon Lime','Love 777','Mixed Berries','Pink Lemonade','Pistachio Cream','Red Mojito','Spearmint','Strawberry Banana','Strawberry Raspberry Cherry Ice','Watermelon Bubblegum','Watermelon Cherry'], true), {note:'Цена по запросу'}),
+  L('Vozol Prime 30ml 5%','liquid', P([['Berry',false],['Berry Peach',true],['Blue Cotton Candy',true],['Blue Raspberry',false],['Blue Razz Lemon',false],['Blueberry Ice',false],['Blueberry Watermelon',true],['Cherry Cola',false],['Cherry Lemon Peach',false],['Cherry Vanilla Cream',true],['Cola Gummies',false],['Dragon Fruit Banana Cherry',true],['Frozen Grape Soda',false],['Grape Cherry',false],['Grape Ice',false],['Kiwi Passion Fruit Guava',false],['LavaFire',true],['Lemon Grapefruit',true],['Lemon Lime',false],['Love 777',false],['Lychee Mint',false],['Mint Ice',false],['Mixed Berries',true],['Peach Ice',false],['Peach Mango Watermelon',true],['Perfume Lemon',true],['Pineapple Passion Fruit Lime',false],['Pomegranate Lemonade',true],['Purple Candy',false],['Sour Apple Ice',false],['Strawberry Ice',false],['Strawberry Ice Cream',false],['Strawberry Kiwi',false],['Strawberry Watermelon',true],['Vanilla Cream Tobacco',true],['Watermelon Bubblegum',true],['Watermelon Ice',false],['Watermelon Plum',true],['White Peach Jasmine',false]]), {note:'Цена по запросу'}),
+  L('ElfLiq 30ml 5%','liquid', P([['Apple Peach',true],['Apple Pear',true],['Blackberry Lemon',false],['Blackcurrant Aniseed',true],['Blue Razz Ice',true],['Blue Razz Lemonade',false],['Blueberry',true],['Blueberry Raspberry Pomegranate',true],['Blueberry Rose Mint',false],['Blueberry Sour Raspberry',true],['Cherry',true],['Cherry Lemon Peach',true],['Cherry Cola',true],['Cola',true],['Cool Mint',true],['Cuba Tobacco',true],['Double Apple',true],['Elf Jack',true],['ElfBull Ice',true],['Grape',false],['Grape Cherry',true],['Green Grape Rose',true],['Jasmine Raspberry',true],['Kiwi Passion Fruit Guava',true],['Lemon Lime',true],['Mango Peach',false],['PB Cloud',true],['Peach Ice',true],['Pina Colada',true],['Pineapple Colada',true],['Pineapple Ice',true],['Pink Grapefruit',false],['Pink Lemonade',true],['Pink Lemonade Soda',true],['Raspberry Lychee',false],['Rhubarb Snow',true],['Snow Tobacco',true],['Sour Apple',true],['Sour Watermelon Gummy',false],['Spearmint',true],['Strawberry Banana',false],['Strawberry Cherry Lemon',true],['Strawberry Ice',true],['Strawberry Kiwi',false],['Strawberry Raspberry Cherry Ice',true],['Strawberry Snow',true],['Watermelon',false],['Watermelon Cherry',true]]), {note:'Цена по запросу'}),
+  L('Chaser Black 30ml 5%','liquid', P([['Bali',true],['Banana Apple',true],['Blackberry Sour Raspberry',true],['Blackcurrant Peach Apple',true],['Blackcurrant Rose',true],['Bubblegum',true],['Energy Grape',true],['Energy Raspberry',true],['Flirt',true],['Forest Mix',true],['Kiwi Wild Strawberry',true],['Lemon Mint',true],['Mojito',true],['Multifruit',true],['Peach Lemonade',true],['Pink Lemonade',true],['Sherbet',true],['Strawberry Blueberry',true],['Triple Berry',false],['Triple Raspberry',true],['Triple Sour Apple',true],['Watermelon Lemon',true]]), {note:'Цена по запросу'}),
+  L('Chaser Lux 30ml 5%','liquid', F(['Berry Lemonade','Blackberry Lemonade','Blackberry Pink Guava','Blueberry Mint','Blueberry Raspberry','Cherry Lemon','Coconut Melon','Energetic','Grape Mint','Kiwi Passion Fruit Guava','Mango Nectar','Sangria','Sour Apple','Strawberry Cream','Peach Tea','Tropic Punch','Turbo Mint','Vitamin','Watermelon Raspberry','Peach Yogurt','Watermelon Lime','Berry Needles','Ice Latte'], false), {note:'Цена по запросу'}),
+  L('Chaser Limitini Editini 30ml 5%','liquid', F(['Ballerina Capuccino','Glorbo Fruttodrillo','Tung Tung Tung Sahur'], false), {note:'Цена по запросу'}),
+  L('Chaser for Pods 30ml 5%','liquid', P([['Apple',true],['Apple Mint',true],['Banana',true],['Berries',true],['Blackcurrant Menthol',true],['Blue Raspberry',true],['Blueberry Menthol',true],['Cherry',false],['Cherry Menthol',false],['Grape',true],['Kiwi',true],['Mint',true],['Peach',true],['Pineapple',true],['Pomegranate',true],['Red Currant',true],['Strawberry',true],['Watermelon',true],['Watermelon Menthol',true],['Yellow Cherry',false],['Wild Strawberry',true],['Yellow Raspberry',true],['Yellow Dragonfruit',true]]), {note:'Цена по запросу'}),
+  L('Chaser Special 30ml 5%','liquid', F(['Berry Candy','Berry Needles','Bilberry Mint','Blackberry','Blueberry Lemon','Cherries','Cranberry Mint','Energy Cherry','Fall Tea','Mystery One','Punch','Strawberry Jelly'], false)),
+  L('Chaser Mix 30ml 5%','liquid', F(['Cherry Tobacco','Cherry Watermelon','Cola','Basil Mint','Blackberry Jam','Fanta','Guava Peach','Orbit','Smoothie','Strawberry Grape','Strawberry Kvass','Watermelon Apple','Banana Aloe','Strawberry Banana','Rum Cola','Cranberry Cactus','Blue Raspberry Lemonade'], false)),
+  L('Fumot 30ml 20mg','liquid', P([['Blueberry Cherry Cranberry',false],['Blueberry On Ice',false],['Blueberry Raspberry',false],['Cherry Ice',false],['Cool Mint',false],['Dr Blue',true],['Grape Ice',false],['Kiwi Passion Fruit Guava',false],['Love 66',false],['Lush Ice',true],['Mixed Berries',false],['Peach Ice',false],['Peach Mango',true],['Pink Lemonade',false],['Strawberry Banana',true],['Strawberry Grape',false],['Strawberry Ice',true],['Strawberry Kiwi',true],['Strawberry Watermelon',true],['Watermelon Ice',false]])),
+
+  // ---------------- SNUS ----------------
+  L('Снюс Cuba 66мг','snus', F(['Apple Juice','Banana Hit','Black Currant','Blackberry','Blueberry','Cherry','Cola','Cold Dry','Double Fresh','Forest Berries','Grape','Ice Spearmint','Mango','Peach','Tropical Fruit','Watermelon'], true)),
+  L('Снюс Baron 77мг','snus', F(['Classic','Eucalyptus','Fruit Cocktail','Menthol','Wintergreen'], true)),
+];
+
+/* ======================= STATE ======================= */
+let activeCat = 'all';
+let searchTerm = '';
+let stockOnly = false;
+const selected = new Set(); // "lineIndex::flavorName"
+const openLines = new Set(); // lineIndex open state
+
+/* ======================= RENDER ======================= */
+const catalogEl = document.getElementById('catalog');
+const catFiltersEl = document.getElementById('catFilters');
+
+function hueFor(str){
+  let h = 0;
+  for(let i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i)) % 360; }
+  return h;
+}
+
+function buildCatFilters(){
+  const all = document.createElement('div');
+  all.className = 'cat-chip active';
+  all.textContent = 'Всё';
+  all.dataset.cat = 'all';
+  catFiltersEl.appendChild(all);
+  CATEGORIES.forEach(c=>{
+    const el = document.createElement('div');
+    el.className = 'cat-chip';
+    el.textContent = c.label;
+    el.dataset.cat = c.key;
+    catFiltersEl.appendChild(el);
+  });
+  catFiltersEl.addEventListener('click', e=>{
+    const chip = e.target.closest('.cat-chip');
+    if(!chip) return;
+    activeCat = chip.dataset.cat;
+    [...catFiltersEl.children].forEach(c=>c.classList.toggle('active', c===chip));
+    render();
+  });
+}
+
+function matchesFilters(line){
+  if(activeCat !== 'all' && line.category !== activeCat) return false;
+  if(searchTerm){
+    const t = searchTerm.toLowerCase();
+    const nameHit = line.name.toLowerCase().includes(t);
+    const flavorHit = line.items.some(i => i.n.toLowerCase().includes(t));
+    if(!nameHit && !flavorHit) return false;
+  }
+  return true;
+}
+
+function render(){
+  catalogEl.innerHTML = '';
+  let totalLines = 0, totalAvailFlavors = 0;
+
+  CATEGORIES.forEach(cat=>{
+    const lines = DATA
+      .map((l, idx)=>({...l, idx}))
+      .filter(l => l.category === cat.key)
+      .filter(matchesFilters);
+
+    // for stats, count over full data regardless of filter
+    DATA.forEach(l=>{ if(l.category===cat.key){ totalLines++; totalAvailFlavors += l.items.filter(i=>i.ok).length; } });
+
+    if(lines.length === 0) return;
+
+    const section = document.createElement('section');
+    section.className = 'category-section';
+    section.id = 'cat-'+cat.key;
+
+    const h2 = document.createElement('h2');
+    h2.innerHTML = `${cat.label} <span class="count">${lines.length} поз.</span>`;
+    section.appendChild(h2);
+
+    const grid = document.createElement('div');
+    grid.className = 'lines-grid';
+
+    lines.forEach(line=>{
+      const filteredItems = stockOnly ? line.items.filter(i=>i.ok) : line.items;
+      const searchedItems = searchTerm
+        ? filteredItems.filter(i => i.n.toLowerCase().includes(searchTerm.toLowerCase()) || line.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        : filteredItems;
+      if(searchTerm && searchedItems.length===0 && !line.name.toLowerCase().includes(searchTerm.toLowerCase())) return;
+
+      const availCount = line.items.filter(i=>i.ok).length;
+      const card = document.createElement('div');
+      card.className = 'line-card' + (openLines.has(line.idx) ? ' open' : '');
+
+      const head = document.createElement('div');
+      head.className = 'line-head';
+      head.innerHTML = `
+        <div class="line-title-wrap">
+          <span class="line-title">${line.name}</span>
+        </div>
+        <div class="line-meta">
+          <span class="avail-count">${availCount}/${line.items.length} в наличии</span>
+          <span class="chevron"></span>
+        </div>`;
+      head.addEventListener('click', ()=>{
+        if(openLines.has(line.idx)) openLines.delete(line.idx); else openLines.add(line.idx);
+        card.classList.toggle('open');
+      });
+      card.appendChild(head);
+
+      const panel = document.createElement('div');
+      panel.className = 'flavor-panel';
+      const fg = document.createElement('div');
+      fg.className = 'flavor-grid';
+
+      (searchTerm ? searchedItems : filteredItems).forEach(item=>{
+        const key = line.idx + '::' + item.n;
+        const chip = document.createElement('div');
+        chip.className = 'flavor-chip ' + (item.ok ? 'ok' : 'out') + (selected.has(key) ? ' selected' : '');
+        const hue = hueFor(item.n);
+        const dotColor = item.ok ? `hsl(${hue}, 78%, 62%)` : 'var(--muted-dim)';
+        chip.innerHTML = `<span class="dot" style="background:${dotColor}"></span>${item.n}`;
+        if(item.ok){
+          chip.addEventListener('click', (e)=>{
+            e.stopPropagation();
+            toggleSelect(key, line.name, item.n);
+            chip.classList.toggle('selected');
+          });
+        }
+        fg.appendChild(chip);
+      });
+      panel.appendChild(fg);
+      card.appendChild(panel);
+      grid.appendChild(card);
+    });
+
+    section.appendChild(grid);
+    catalogEl.appendChild(section);
+  });
+
+  document.getElementById('statLines').textContent = totalLines;
+  document.getElementById('statFlavors').textContent = totalAvailFlavors + '+';
+}
+
+/* ======================= CART ======================= */
+const cartFab = document.getElementById('cartFab');
+const cartOverlay = document.getElementById('cartOverlay');
+const cartPanel = document.getElementById('cartPanel');
+const cartList = document.getElementById('cartList');
+const cartCount = document.getElementById('cartCount');
+const cartClose = document.getElementById('cartClose');
+const copyBtn = document.getElementById('copyBtn');
+
+const metaMap = {};
+function toggleSelect(key, lineName, flavor){
+  if(selected.has(key)){
+    selected.delete(key);
+    delete metaMap[key];
+  } else {
+    selected.add(key);
+    metaMap[key] = {lineName, flavor, qty:1};
+  }
+  updateCartUI();
+}
+
+function changeQty(key, delta){
+  const m = metaMap[key];
+  if(!m) return;
+  const next = m.qty + delta;
+  if(next <= 0){
+    removeItem(key);
+    return;
+  }
+  m.qty = Math.min(99, next);
+  updateCartUI();
+}
+
+function removeItem(key){
+  selected.delete(key);
+  delete metaMap[key];
+  updateCartUI();
+  render();
+}
+
+function totalUnits(){
+  let sum = 0;
+  selected.forEach(key=>{
+    const m = metaMap[key];
+    if(m) sum += m.qty;
+  });
+  return sum;
+}
+
+function updateCartUI(){
+  cartCount.textContent = totalUnits();
+  cartList.innerHTML = '';
+  if(selected.size === 0){
+    cartList.innerHTML = '<div class="cart-empty">Список пуст.<br>Тапни на вкус в каталоге — зелёная точка значит «в наличии». Количество можно изменить прямо здесь.</div>';
+    return;
+  }
+  const groups = {};
+  selected.forEach(key=>{
+    const m = metaMap[key];
+    if(!m) return;
+    groups[m.lineName] = groups[m.lineName] || [];
+    groups[m.lineName].push({key, flavor:m.flavor, qty:m.qty});
+  });
+  Object.keys(groups).forEach(lineName=>{
+    const g = document.createElement('div');
+    g.className = 'cart-group';
+    g.innerHTML = `<div class="g-title">${lineName}</div>`;
+    groups[lineName].forEach(({key, flavor, qty})=>{
+      const row = document.createElement('div');
+      row.className = 'cart-item';
+      row.innerHTML = `
+        <span class="ci-name">${flavor}</span>
+        <div class="ci-controls">
+          <div class="stepper sm">
+            <button class="st-minus" type="button" aria-label="Меньше">−</button>
+            <span class="st-val">${qty}</span>
+            <button class="st-plus" type="button" aria-label="Больше">+</button>
+          </div>
+          <button class="rm" type="button" aria-label="Удалить">✕</button>
+        </div>`;
+      row.querySelector('.st-minus').addEventListener('click', ()=> changeQty(key, -1));
+      row.querySelector('.st-plus').addEventListener('click', ()=> changeQty(key, 1));
+      row.querySelector('.rm').addEventListener('click', ()=> removeItem(key));
+      g.appendChild(row);
+    });
+    cartList.appendChild(g);
+  });
+}
+
+function buildOrderText(){
+  const groups = {};
+  selected.forEach(key=>{
+    const m = metaMap[key];
+    if(!m) return;
+    groups[m.lineName] = groups[m.lineName] || [];
+    groups[m.lineName].push(m);
+  });
+  let text = `Заказ SMOKEEZ (${totalUnits()} шт):\n`;
+  Object.keys(groups).forEach(lineName=>{
+    text += `\n${lineName}:\n`;
+    groups[lineName].forEach(m=>{ text += `— ${m.flavor}${m.qty>1 ? ' x'+m.qty : ''}\n`; });
+  });
+  return text.trim();
+}
+
+cartFab.addEventListener('click', ()=>{
+  cartOverlay.classList.add('show');
+  cartPanel.classList.add('show');
+});
+function closeCart(){
+  cartOverlay.classList.remove('show');
+  cartPanel.classList.remove('show');
+}
+cartClose.addEventListener('click', closeCart);
+cartOverlay.addEventListener('click', closeCart);
+
+copyBtn.addEventListener('click', async ()=>{
+  if(selected.size === 0){ showToast('Список пока пуст'); return; }
+  const text = buildOrderText();
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast('Список скопирован — вставь его в чат с @znllxs');
+  }catch(err){
+    showToast('Не удалось скопировать — выдели текст вручную');
+  }
+});
+
+const toastEl = document.getElementById('toast');
+let toastTimer;
+function showToast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>toastEl.classList.remove('show'), 2600);
+}
+
+/* ======================= FILTERS WIRING ======================= */
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  searchTerm = e.target.value.trim();
+  render();
+});
+document.getElementById('stockOnly').addEventListener('change', (e)=>{
+  stockOnly = e.target.checked;
+  render();
+});
+document.getElementById('filterToggleBtn').addEventListener('click', ()=>{
+  const btn = document.getElementById('filterToggleBtn');
+  const extra = document.getElementById('filterExtra');
+  const isOpen = btn.classList.toggle('open');
+  extra.classList.toggle('collapsed', !isOpen);
+});
+
+document.getElementById('scrollToCatalog').addEventListener('click', (e)=>{
+  e.preventDefault();
+  document.getElementById('filterBar').scrollIntoView({behavior:'smooth', block:'start'});
+  setTimeout(()=>{ document.getElementById('searchInput').focus({preventScroll:true}); }, 500);
+});
+
+/* ======================= INIT ======================= */
+buildCatFilters();
+render();
+updateCartUI();
+</script>
+</body>
+</html>
